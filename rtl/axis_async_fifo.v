@@ -45,7 +45,7 @@ module axis_async_fifo #
     output wire                   input_axis_tready,
     input  wire                   input_axis_tlast,
     input  wire                   input_axis_tuser,
-    
+
     /*
      * AXI output
      */
