@@ -10,11 +10,24 @@ Usage: axis_frame_join [OPTION]...
   -o, --output   specify output file name
 """
 
+from __future__ import print_function
+
 import io
 import sys
 import getopt
-from math import *
 from jinja2 import Template
+
+if (sys.version_info > (3, 2)):
+    from math import ceil, log2
+else:
+    import math
+    def log2(x):
+        return math.log(x, 2)
+    if (sys.version_info > (3, 0)):
+        from math import ceil
+    else:
+        def ceil(x):
+            return int(math.ceil(x))
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -28,16 +41,16 @@ def main(argv=None):
             opts, args = getopt.getopt(argv[1:], "?n:p:o:", ["help", "name=", "ports=", "output="])
         except getopt.error as msg:
              raise Usage(msg)
-        # more code, unchanged  
+        # more code, unchanged
     except Usage as err:
         print(err.msg, file=sys.stderr)
         print("for help use --help", file=sys.stderr)
         return 2
-    
+
     ports = 4
     name = None
     out_name = None
-    
+
     # process options
     for o, a in opts:
         if o in ('-?', '--help'):
@@ -49,25 +62,25 @@ def main(argv=None):
             name = a
         if o in ('-o', '--output'):
             out_name = a
-    
+
     if name is None:
         name = "axis_frame_join_{0}".format(ports)
-    
+
     if out_name is None:
         out_name = name + ".v"
-    
+
     print("Opening file '%s'..." % out_name)
-    
+
     try:
         out_file = open(out_name, 'w')
     except Exception as ex:
         print("Error opening \"%s\": %s" %(out_name, ex.strerror), file=sys.stderr)
         exit(1)
-    
+
     print("Generating {0} port AXI Stream frame joiner {1}...".format(ports, name))
-    
+
     select_width = ceil(log2(ports))
-    
+
     t = Template(u"""/*
 
 Copyright (c) 2014 Alex Forencich
@@ -222,7 +235,7 @@ always @* begin
                 // next cycle if started will send data, so enable input
                 input_0_axis_tready_next = output_axis_tready_int_early;
             end
-            
+
             if (input_0_axis_tvalid) begin
                 // input 0 valid; start transferring data
                 if (TAG_ENABLE) begin
@@ -314,7 +327,7 @@ always @* begin
                 end
             end else begin
                 state_next = STATE_TRANSFER;
-            end 
+            end
         end
     endcase
 end
@@ -411,16 +424,15 @@ end
 endmodule
 
 """)
-    
+
     out_file.write(t.render(
         n=ports,
         w=select_width,
         name=name,
         ports=range(ports)
     ))
-    
+
     print("Done")
 
 if __name__ == "__main__":
     sys.exit(main())
-
