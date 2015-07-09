@@ -10,11 +10,24 @@ Usage: axis_mux [OPTION]...
   -o, --output   specify output file name
 """
 
+from __future__ import print_function
+
 import io
 import sys
 import getopt
-from math import *
 from jinja2 import Template
+
+if (sys.version_info > (3, 2)):
+    from math import ceil, log2
+else:
+    import math
+    def log2(x):
+        return math.log(x, 2)
+    if (sys.version_info > (3, 0)):
+        from math import ceil
+    else:
+        def ceil(x):
+            return int(math.ceil(x))
 
 class Usage(Exception):
     def __init__(self, msg):
@@ -28,7 +41,7 @@ def main(argv=None):
             opts, args = getopt.getopt(argv[1:], "?n:p:o:", ["help", "name=", "ports=", "output="])
         except getopt.error as msg:
              raise Usage(msg)
-        # more code, unchanged  
+        # more code, unchanged
     except Usage as err:
         print(err.msg, file=sys.stderr)
         print("for help use --help", file=sys.stderr)
@@ -106,7 +119,7 @@ module {{name}} #
 (
     input  wire                   clk,
     input  wire                   rst,
-    
+
     /*
      * AXI inputs
      */
@@ -294,16 +307,15 @@ end
 endmodule
 
 """)
-    
+
     out_file.write(t.render(
         n=ports,
         w=select_width,
         name=name,
         ports=range(ports)
     ))
-    
+
     print("Done")
 
 if __name__ == "__main__":
     sys.exit(main())
-
