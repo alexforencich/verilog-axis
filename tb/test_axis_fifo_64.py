@@ -514,11 +514,11 @@ def bench():
             assert rx_frame == test_frame
 
         yield delay(100)
-        
+
         yield clk.posedge
         print("test 12: reset")
         current_test.next = 12
-        
+
         # send data without reading it
         sink_pause.next = 1
 
