@@ -176,7 +176,7 @@ reg overflow_reg = 1'b0, overflow_next;
 reg bad_frame_reg = 1'b0, bad_frame_next;
 reg good_frame_reg = 1'b0, good_frame_next;
 
-assign s_axis_tready = FRAME_FIFO ? (!full_cur || full_wr || DROP_WHEN_FULL) : !full;
+assign s_axis_tready = rst ? 1'b0 : (FRAME_FIFO ? (!full_cur || full_wr || DROP_WHEN_FULL) : !full);
 
 generate
     assign s_axis[DATA_WIDTH-1:0] = s_axis_tdata;

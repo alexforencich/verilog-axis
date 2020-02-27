@@ -516,8 +516,43 @@ def bench():
         yield delay(100)
 
         yield clk.posedge
-        print("test 12: reset")
+        print("test 12: reset status")
         current_test.next = 12
+
+        # send data without reading it
+        sink_pause.next = 1
+
+        test_frame = axis_ep.AXIStreamFrame(
+            b'\x80\x00',
+            id=1,
+            dest=1
+        )
+
+        source.send(test_frame)
+
+        yield delay(100)
+        yield clk.posedge
+
+        # there should be data available on the master side
+        assert m_axis_tvalid == 1
+
+        # reset the FIFO
+        rst_dut.next = 1
+        yield clk.posedge
+
+        # don't signal ready while in reset
+        assert s_axis_tready == 0
+
+        rst_dut.next = 0
+        yield clk.posedge
+
+        assert m_axis_tvalid == 0
+
+        yield delay(100)
+
+        yield clk.posedge
+        print("test 13: write after reset")
+        current_test.next = 13
 
         # send data without reading it
         sink_pause.next = 1
