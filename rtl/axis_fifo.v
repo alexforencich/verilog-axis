@@ -251,7 +251,7 @@ always @(posedge clk) begin
     if (rst) begin
         wr_ptr_reg <= {ADDR_WIDTH+1{1'b0}};
         wr_ptr_cur_reg <= {ADDR_WIDTH+1{1'b0}};
-
+        wr_addr_reg <= {ADDR_WIDTH+1{1'b0}};
         drop_frame_reg <= 1'b0;
         overflow_reg <= 1'b0;
         bad_frame_reg <= 1'b0;
@@ -264,12 +264,12 @@ always @(posedge clk) begin
         overflow_reg <= overflow_next;
         bad_frame_reg <= bad_frame_next;
         good_frame_reg <= good_frame_next;
-    end
 
-    if (FRAME_FIFO) begin
+        if (FRAME_FIFO) begin
         wr_addr_reg <= wr_ptr_cur_next;
-    end else begin
-        wr_addr_reg <= wr_ptr_next;
+        end else begin
+            wr_addr_reg <= wr_ptr_next;
+        end
     end
 
     if (write) begin
@@ -302,13 +302,13 @@ end
 always @(posedge clk) begin
     if (rst) begin
         rd_ptr_reg <= {ADDR_WIDTH+1{1'b0}};
+        rd_addr_reg <= {ADDR_WIDTH+1{1'b0}};
         mem_read_data_valid_reg <= 1'b0;
     end else begin
         rd_ptr_reg <= rd_ptr_next;
+        rd_addr_reg <= rd_ptr_next;
         mem_read_data_valid_reg <= mem_read_data_valid_next;
     end
-
-    rd_addr_reg <= rd_ptr_next;
 
     if (read) begin
         mem_read_data_reg <= mem[rd_addr_reg[ADDR_WIDTH-1:0]];

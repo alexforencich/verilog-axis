@@ -62,7 +62,7 @@ def bench():
 
     # Inputs
     clk = Signal(bool(0))
-    rst = Signal(bool(0))
+    rst_dut = Signal(bool(0))
     current_test = Signal(intbv(0)[8:])
 
     s_axis_tdata = Signal(intbv(0)[DATA_WIDTH:])
@@ -85,6 +85,7 @@ def bench():
     m_axis_tuser = Signal(intbv(0)[USER_WIDTH:])
 
     # sources and sinks
+    rst_tb = Signal(bool(0))
     source_pause = Signal(bool(0))
     sink_pause = Signal(bool(0))
 
@@ -92,7 +93,7 @@ def bench():
 
     source_logic = source.create_logic(
         clk,
-        rst,
+        rst_tb,
         tdata=s_axis_tdata,
         tkeep=s_axis_tkeep,
         tvalid=s_axis_tvalid,
@@ -109,7 +110,7 @@ def bench():
 
     sink_logic = sink.create_logic(
         clk,
-        rst,
+        rst_tb,
         tdata=m_axis_tdata,
         tkeep=m_axis_tkeep,
         tvalid=m_axis_tvalid,
@@ -129,7 +130,7 @@ def bench():
     dut = Cosimulation(
         "vvp -m myhdl %s.vvp -lxt2" % testbench,
         clk=clk,
-        rst=rst,
+        rst=rst_dut,
         current_test=current_test,
 
         s_axis_tdata=s_axis_tdata,
@@ -159,9 +160,11 @@ def bench():
     def check():
         yield delay(100)
         yield clk.posedge
-        rst.next = 1
+        rst_dut.next = 1
+        rst_tb.next = 1
         yield clk.posedge
-        rst.next = 0
+        rst_dut.next = 0
+        rst_tb.next = 0
         yield clk.posedge
         yield delay(100)
         yield clk.posedge
@@ -441,9 +444,11 @@ def bench():
         yield clk.posedge
         yield clk.posedge
 
-        rst.next = 1
+        rst_dut.next = 1
+        rst_tb.next = 1
         yield clk.posedge
-        rst.next = 0
+        rst_dut.next = 0
+        rst_tb.next = 0
 
         sink_pause.next = 0
 
@@ -507,6 +512,57 @@ def bench():
             rx_frame = sink.recv()
 
             assert rx_frame == test_frame
+
+        yield delay(100)
+        
+        yield clk.posedge
+        print("test 12: reset")
+        current_test.next = 12
+        
+        # send data without reading it
+        sink_pause.next = 1
+
+        test_frame = axis_ep.AXIStreamFrame(
+            b'\xDA\xD1\xD2\xD3\xD4\xD5' +
+            b'\x5A\x51\x52\x53\x54\x55' +
+            b'\x80\x00',
+            id=1,
+            dest=1
+        )
+
+        source.send(test_frame)
+
+        yield delay(100)
+
+        # prepare second frame, but don't send it yet
+        test_frame = axis_ep.AXIStreamFrame(
+            b'\xFA\xF1\xF2\xF3\xF4\xF5' +
+            b'\x4A\x41\x42\x43\x44\x45' +
+            b'\xAA\xBB',
+            id=2,
+            dest=2
+        )
+
+        source_pause.next = 1
+
+        source.send(test_frame)
+
+        # reset the FIFO
+        yield clk.posedge
+        rst_dut.next = 1
+
+        # start tranmission immediately after reset
+        source_pause.next = 0
+        yield clk.posedge
+        rst_dut.next = 0
+
+        # receive test frame
+        sink_pause.next = 0
+
+        yield sink.wait()
+        rx_frame = sink.recv()
+
+        assert rx_frame == test_frame
 
         yield delay(100)
 
