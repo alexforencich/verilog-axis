@@ -266,7 +266,7 @@ always @(posedge clk) begin
         good_frame_reg <= good_frame_next;
 
         if (FRAME_FIFO) begin
-        wr_addr_reg <= wr_ptr_cur_next;
+            wr_addr_reg <= wr_ptr_cur_next;
         end else begin
             wr_addr_reg <= wr_ptr_next;
         end
