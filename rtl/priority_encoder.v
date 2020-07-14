@@ -71,6 +71,7 @@ generate
         priority_encoder_inst1 (
             .input_unencoded(input_unencoded[W2-1:0]),
             .output_valid(valid1),
+            .output_unencoded(),
             .output_encoded(out1)
         );
         priority_encoder #(
@@ -80,6 +81,7 @@ generate
         priority_encoder_inst2 (
             .input_unencoded({{W1-WIDTH{1'b0}}, input_unencoded[WIDTH-1:W2]}),
             .output_valid(valid2),
+            .output_unencoded(),
             .output_encoded(out2)
         );
         // multiplexer to select part

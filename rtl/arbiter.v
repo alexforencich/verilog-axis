@@ -97,12 +97,12 @@ always @* begin
     grant_encoded_next = 0;
     mask_next = mask_reg;
 
-    if (BLOCK == "REQUEST" && grant_reg & request) begin
+    if (BLOCK == "REQUEST" && |(grant_reg & request)) begin
         // granted request still asserted; hold it
         grant_valid_next = grant_valid_reg;
         grant_next = grant_reg;
         grant_encoded_next = grant_encoded_reg;
-    end else if (BLOCK == "ACKNOWLEDGE" && grant_valid && !(grant_reg & acknowledge)) begin
+    end else if (BLOCK == "ACKNOWLEDGE" && grant_valid && !(|(grant_reg & acknowledge))) begin
         // granted request not yet acknowledged; hold it
         grant_valid_next = grant_valid_reg;
         grant_next = grant_reg;
