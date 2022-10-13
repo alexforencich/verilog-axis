@@ -31,7 +31,7 @@ THE SOFTWARE.
 /*
  * Arbiter module
  */
-module arbiter #
+module verilog_axis_arbiter #
 (
     parameter PORTS = 4,
     // select round robin arbitration
