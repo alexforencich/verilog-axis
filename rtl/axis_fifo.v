@@ -283,7 +283,7 @@ always @(posedge clk) begin
     end
 
     for (j = RAM_PIPELINE+1-1; j > 0; j = j - 1) begin
-        if (OUTPUT_FIFO_ENABLE || m_axis_tready || ((~m_axis_tvalid_pipe_reg) >> j)) begin
+        if (OUTPUT_FIFO_ENABLE || m_axis_tready || (((~m_axis_tvalid_pipe_reg) >> j) != 0)) begin
             // output ready or bubble in pipeline; transfer down pipeline
             m_axis_tvalid_pipe_reg[j] <= m_axis_tvalid_pipe_reg[j-1];
             m_axis_pipe_reg[j] <= j == 1 ? mem_read_data_reg : m_axis_pipe_reg[j-1];
@@ -291,7 +291,7 @@ always @(posedge clk) begin
         end
     end
 
-    if (OUTPUT_FIFO_ENABLE || m_axis_tready || ~m_axis_tvalid_pipe_reg) begin
+    if (OUTPUT_FIFO_ENABLE || m_axis_tready || (~m_axis_tvalid_pipe_reg != 0)) begin
         // output ready or bubble in pipeline; read new data from FIFO
         m_axis_tvalid_pipe_reg[0] <= 1'b0;
         mem_read_data_reg <= mem[rd_ptr_reg[ADDR_WIDTH-1:0]];
