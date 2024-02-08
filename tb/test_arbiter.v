@@ -71,7 +71,7 @@ initial begin
     $dumpvars(0, test_arbiter);
 end
 
-arbiter #(
+verilog_axis_arbiter #(
     .PORTS(PORTS),
     .ARB_TYPE_ROUND_ROBIN(ARB_TYPE_ROUND_ROBIN),
     .ARB_BLOCK(ARB_BLOCK),
