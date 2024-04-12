@@ -91,6 +91,10 @@ async def run_test(dut, payload_lengths=None, payload_data=None, idle_inserter=N
         test_frame.tid = cur_id
         test_frame.tdest = cur_id
 
+        # set tkeep to all zeros when disabled to verify correct handling
+        if not dut.S_KEEP_ENABLE.value:
+            test_frame.tkeep = [0]*len(test_data)
+
         test_frames.append(test_frame)
         await tb.source.send(test_frame)
 
