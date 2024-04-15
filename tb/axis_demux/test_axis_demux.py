@@ -173,7 +173,7 @@ def test_axis_demux(request, ports, data_width, tdest_route):
     wrapper_file = os.path.join(tests_dir, f"{wrapper}.v")
     if not os.path.exists(wrapper_file):
         subprocess.Popen(
-            [os.path.join(rtl_dir, f"{dut}_wrap.py"), "-p", f"{ports}"],
+            ["python3", os.path.join(rtl_dir, f"{dut}_wrap.py"), "-p", f"{ports}"],
             cwd=tests_dir
         ).wait()
 
