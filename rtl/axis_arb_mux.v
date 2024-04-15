@@ -151,7 +151,7 @@ wire [DEST_WIDTH-1:0] current_s_tdest  = s_axis_tdest_reg[grant_encoded*DEST_WID
 wire [USER_WIDTH-1:0] current_s_tuser  = s_axis_tuser_reg[grant_encoded*USER_WIDTH +: USER_WIDTH];
 
 // arbiter instance
-arbiter #(
+verilog_axis_arbiter #(
     .PORTS(S_COUNT),
     .ARB_TYPE_ROUND_ROBIN(ARB_TYPE_ROUND_ROBIN),
     .ARB_BLOCK(1),
