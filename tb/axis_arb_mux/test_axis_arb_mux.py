@@ -316,6 +316,19 @@ tests_dir = os.path.dirname(__file__)
 rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', '..', 'rtl'))
 
 
+def process_f_files(files):
+    lst = {}
+    for f in files:
+        if f[-2:].lower() == '.f':
+            with open(f, 'r') as fp:
+                l = fp.read().split()
+            for f in process_f_files([os.path.join(os.path.dirname(f), x) for x in l]):
+                lst[os.path.basename(f)] = f
+        else:
+            lst[os.path.basename(f)] = f
+    return list(lst.values())
+
+
 @pytest.mark.parametrize("round_robin", [0, 1])
 @pytest.mark.parametrize("data_width", [8, 16, 32])
 @pytest.mark.parametrize("ports", [1, 4])
@@ -335,10 +348,10 @@ def test_axis_arb_mux(request, ports, data_width, round_robin):
 
     verilog_sources = [
         wrapper_file,
-        os.path.join(rtl_dir, f"{dut}.v"),
-        os.path.join(rtl_dir, "arbiter.v"),
-        os.path.join(rtl_dir, "priority_encoder.v"),
+        os.path.join(rtl_dir, f"{dut}.f"),
     ]
+
+    verilog_sources = process_f_files(verilog_sources)
 
     parameters = {}
 

@@ -323,6 +323,19 @@ tests_dir = os.path.dirname(__file__)
 rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', '..', 'rtl'))
 
 
+def process_f_files(files):
+    lst = {}
+    for f in files:
+        if f[-2:].lower() == '.f':
+            with open(f, 'r') as fp:
+                l = fp.read().split()
+            for f in process_f_files([os.path.join(os.path.dirname(f), x) for x in l]):
+                lst[os.path.basename(f)] = f
+        else:
+            lst[os.path.basename(f)] = f
+    return list(lst.values())
+
+
 @pytest.mark.parametrize("m_data_width", [8, 32])
 @pytest.mark.parametrize("s_data_width", [8, 32])
 @pytest.mark.parametrize("m_count", [1, 4])
@@ -343,11 +356,10 @@ def test_axis_ram_switch(request, s_count, m_count, s_data_width, m_data_width):
 
     verilog_sources = [
         wrapper_file,
-        os.path.join(rtl_dir, f"{dut}.v"),
-        os.path.join(rtl_dir, "axis_adapter.v"),
-        os.path.join(rtl_dir, "arbiter.v"),
-        os.path.join(rtl_dir, "priority_encoder.v"),
+        os.path.join(rtl_dir, f"{dut}.f"),
     ]
+
+    verilog_sources = process_f_files(verilog_sources)
 
     parameters = {}
 

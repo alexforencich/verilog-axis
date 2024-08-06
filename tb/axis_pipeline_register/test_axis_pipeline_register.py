@@ -212,6 +212,19 @@ tests_dir = os.path.dirname(__file__)
 rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', '..', 'rtl'))
 
 
+def process_f_files(files):
+    lst = {}
+    for f in files:
+        if f[-2:].lower() == '.f':
+            with open(f, 'r') as fp:
+                l = fp.read().split()
+            for f in process_f_files([os.path.join(os.path.dirname(f), x) for x in l]):
+                lst[os.path.basename(f)] = f
+        else:
+            lst[os.path.basename(f)] = f
+    return list(lst.values())
+
+
 @pytest.mark.parametrize("reg_type", [0, 1, 2])
 @pytest.mark.parametrize("data_width", [8, 16, 32])
 @pytest.mark.parametrize("length", [0, 1, 2])
@@ -221,9 +234,10 @@ def test_axis_pipeline_register(request, length, data_width, reg_type):
     toplevel = dut
 
     verilog_sources = [
-        os.path.join(rtl_dir, f"{dut}.v"),
-        os.path.join(rtl_dir, "axis_register.v"),
+        os.path.join(rtl_dir, f"{dut}.f"),
     ]
+
+    verilog_sources = process_f_files(verilog_sources)
 
     parameters = {}
 

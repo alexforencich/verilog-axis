@@ -445,6 +445,19 @@ tests_dir = os.path.dirname(__file__)
 rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', '..', 'rtl'))
 
 
+def process_f_files(files):
+    lst = {}
+    for f in files:
+        if f[-2:].lower() == '.f':
+            with open(f, 'r') as fp:
+                l = fp.read().split()
+            for f in process_f_files([os.path.join(os.path.dirname(f), x) for x in l]):
+                lst[os.path.basename(f)] = f
+        else:
+            lst[os.path.basename(f)] = f
+    return list(lst.values())
+
+
 @pytest.mark.parametrize(("frame_fifo", "drop_oversize_frame", "drop_bad_frame",
     "drop_when_full", "mark_when_full"),
     [(0, 0, 0, 0, 0), (1, 0, 0, 0, 0), (1, 1, 0, 0, 0), (1, 1, 1, 0, 0),
@@ -459,10 +472,10 @@ def test_axis_fifo_adapter(request, s_data_width, m_data_width,
     toplevel = dut
 
     verilog_sources = [
-        os.path.join(rtl_dir, f"{dut}.v"),
-        os.path.join(rtl_dir, "axis_fifo.v"),
-        os.path.join(rtl_dir, "axis_adapter.v"),
+        os.path.join(rtl_dir, f"{dut}.f"),
     ]
+
+    verilog_sources = process_f_files(verilog_sources)
 
     parameters = {}
 

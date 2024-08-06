@@ -217,6 +217,19 @@ tests_dir = os.path.dirname(__file__)
 rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', '..', 'rtl'))
 
 
+def process_f_files(files):
+    lst = {}
+    for f in files:
+        if f[-2:].lower() == '.f':
+            with open(f, 'r') as fp:
+                l = fp.read().split()
+            for f in process_f_files([os.path.join(os.path.dirname(f), x) for x in l]):
+                lst[os.path.basename(f)] = f
+        else:
+            lst[os.path.basename(f)] = f
+    return list(lst.values())
+
+
 @pytest.mark.parametrize("append_zero", [0, 1])
 def test_axis_cobs_encode(request, append_zero):
     dut = "axis_cobs_encode"
@@ -224,9 +237,10 @@ def test_axis_cobs_encode(request, append_zero):
     toplevel = dut
 
     verilog_sources = [
-        os.path.join(rtl_dir, f"{dut}.v"),
-        os.path.join(rtl_dir, "axis_fifo.v"),
+        os.path.join(rtl_dir, f"{dut}.f"),
     ]
+
+    verilog_sources = process_f_files(verilog_sources)
 
     parameters = {}
 
