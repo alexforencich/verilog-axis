@@ -135,6 +135,7 @@ module axis_fifo #
 );
 
 parameter ADDR_WIDTH = (KEEP_ENABLE && KEEP_WIDTH > 1) ? $clog2(DEPTH/KEEP_WIDTH) : $clog2(DEPTH);
+parameter CL_KEEP_WDITH = $clog2(KEEP_WIDTH);
 
 parameter OUTPUT_FIFO_ADDR_WIDTH = RAM_PIPELINE < 2 ? 3 : $clog2(RAM_PIPELINE*2+7);
 
@@ -250,8 +251,8 @@ wire [USER_WIDTH-1:0]  m_axis_tuser_out;
 
 wire pipe_ready;
 
-assign status_depth = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_reg, {$clog2(KEEP_WIDTH){1'b0}}} : depth_reg;
-assign status_depth_commit = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_commit_reg, {$clog2(KEEP_WIDTH){1'b0}}} : depth_commit_reg;
+assign status_depth = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_reg, {CL_KEEP_WDITH{1'b0}}} : depth_reg;
+assign status_depth_commit = (KEEP_ENABLE && KEEP_WIDTH > 1) ? {depth_commit_reg, {CL_KEEP_WDITH{1'b0}}} : depth_commit_reg;
 assign status_overflow = overflow_reg;
 assign status_bad_frame = bad_frame_reg;
 assign status_good_frame = good_frame_reg;
