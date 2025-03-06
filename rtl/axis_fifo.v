@@ -88,7 +88,11 @@ module axis_fifo #
     // Enable pause request input
     parameter PAUSE_ENABLE = 0,
     // Pause between frames
-    parameter FRAME_PAUSE = FRAME_FIFO
+    parameter FRAME_PAUSE = FRAME_FIFO,
+    // AMD/Xilinx RAM_STYLE synthesis attribute, usually one of: "block", "distributed, "registers", "ultra", "mixed", "auto"
+    parameter XILINX_RAM_STYLE = "auto",
+    // Intel/Altera ramstyle synthesis attribute, usually one or more of: "logic", "no_rw_check", "M9K", "M20K", "M144K", "MLAB"
+    parameter INTEL_RAM_STYLE = "no_rw_check"
 )
 (
     input  wire                   clk,
@@ -188,7 +192,7 @@ reg [ADDR_WIDTH:0] wr_ptr_reg = {ADDR_WIDTH+1{1'b0}};
 reg [ADDR_WIDTH:0] wr_ptr_commit_reg = {ADDR_WIDTH+1{1'b0}};
 reg [ADDR_WIDTH:0] rd_ptr_reg = {ADDR_WIDTH+1{1'b0}};
 
-(* ramstyle = "no_rw_check" *)
+(* ram_style = XILINX_RAM_STYLE, ramstyle = INTEL_RAM_STYLE *)
 reg [WIDTH-1:0] mem[(2**ADDR_WIDTH)-1:0];
 reg mem_read_data_valid_reg = 1'b0;
 
