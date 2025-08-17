@@ -186,7 +186,7 @@ always @(posedge clk) begin
     if (rst) begin
         s_axis_tready_reg <= 1'b0;
         m_axis_tvalid_reg <= {M_COUNT{1'b0}};
-        temp_m_axis_tvalid_reg <= {M_COUNT{1'b0}};
+        temp_m_axis_tvalid_reg <= 1'b0;
     end
 end
 
